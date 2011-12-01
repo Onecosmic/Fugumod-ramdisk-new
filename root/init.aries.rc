@@ -4,6 +4,7 @@ on init
     loglevel 9
     export PHONE_STORAGE /mnt/emmc
     export EXTERNAL_STORAGE /mnt/sdcard
+    export DOWNLOAD_CACHE /data/download
     mkdir /mnt/emmc 0000 system system
     symlink /mnt/emmc /emmc
     mkdir /mnt/sdcard 0000 system system
@@ -34,20 +35,6 @@ on boot
 # phone
     setprop ro.telephony.call_ring.multiple 0
 
-# change permission for uart_switch
-    chown radio radio /sys/class/sec/uart_switch/UART_SEL/value
-    chown compass root /sys/class/input/input3/distortion
-    chown compass root /sys/class/input/input3/offsets
-    chown compass root /sys/class/input/input3/shape
-    chown compass root /sys/class/input/input3/threshold
-    chmod 660 /sys/class/sec/uart_switch/UART_SEL/value
-
-# change permission for compass
-    chown compass input /sys/class/input/input3/offsets
-    chown compass input /sys/class/input/input3/shape
-    chown compass input /sys/class/input/input3/distortion
-    chown compass input /sys/class/input/input3/threshold
-
 on fs
     mkdir /radio 0775 radio radio
     mount yaffs2 mtd@radio /radio
@@ -72,6 +59,10 @@ on fs
 
 # Permissions for System Server and daemons.
     chown system system /sys/class/backlight/s5p_bl/brightness
+
+# change permission for uart_switch
+    chown radio radio /sys/class/sec/uart_switch/UART_SEL/value
+    chmod 660 /sys/class/sec/uart_switch/UART_SEL/value
 
 # create data/gps for GPS demon
     mkdir /data/gps 700 gps system
@@ -106,6 +97,9 @@ on post-fs-data
     # wi-fi
     mkdir /data/misc/wifi/sockets 0770 wifi wifi
     mkdir /data/misc/dhcp 0770 dhcp dhcp
+
+    # download cache
+    mkdir /data/download 0770 system cache
 
 # 3D init
 service pvrsrvinit /system/vendor/bin/pvrsrvinit
